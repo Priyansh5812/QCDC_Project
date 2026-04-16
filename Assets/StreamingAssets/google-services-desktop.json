@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "991491842989",
+    "project_id": "qcdc-47370",
+    "storage_bucket": "qcdc-47370.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:991491842989:android:b02debaf1eeec038d93724",
+        "android_client_info": {
+          "package_name": "com.pkay.qcdc"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "991491842989-a46uq429ipfht0qupq60ln1momc6lp2b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDlf87-cu7lDC_R9t3t-XrN7T8j5GO95Fw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "991491842989-a46uq429ipfht0qupq60ln1momc6lp2b.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
