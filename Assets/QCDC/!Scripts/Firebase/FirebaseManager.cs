@@ -40,7 +40,7 @@ public class FirebaseManager : Singleton<FirebaseManager>
             return;
 
 
-        Firebase.FirebaseApp.LogLevel = LogLevel.Verbose;
+        Firebase.FirebaseApp.LogLevel = LogLevel.Debug;
 
         Firebase.FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(async task =>
         {
@@ -50,6 +50,7 @@ public class FirebaseManager : Singleton<FirebaseManager>
                 fireAuth = FirebaseAuth.DefaultInstance;
                 IsFirebaseActive = true;
                 OnFirebaseInitialized?.Invoke();
+                OnFirebaseInitialized = null;
                 fireAuth.StateChanged += AuthStateChanged;
                 Utils.Info("Firebase Initialized");
                 InitializeGoogleSignIn();

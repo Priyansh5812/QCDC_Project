@@ -21,6 +21,7 @@ public class AuthScreenView : IMonoState
     public void OnEnable(Action OnEnableCompleted = null)
     {
         InitListeners();
+        HandleInitialization();
         OnEnableCompleted?.Invoke();
     }
 
@@ -37,6 +38,38 @@ public class AuthScreenView : IMonoState
         data.loginSignup.onClick.AddListener(ProceedEmailPassAuth);
         data.googleLogin.onClick.AddListener(ProceedGoogleSignIn);
     }
+
+    void HandleInitialization()
+    {
+        data.cgMain.interactable = false;
+        data.cgMain.alpha = 0.0f;
+
+        if (FirebaseManager.IsFirebaseActive)
+        {
+            PrepareStartup();
+        }
+        else 
+        {
+            FirebaseManager.OnFirebaseInitialized += PrepareStartup; // DeInit will be handled by the firebase
+        }
+
+    }
+
+
+    async void PrepareStartup()
+    {   
+        if (FirebaseManager.Instance.GetCurrentFirebaseUser() != null)
+        {
+            menuController.InitiateStateChange(typeof(GameScreenView));
+        }
+        else 
+        {
+            await data.cgMain.DOFade(1f, 0.25f).SetEase(Ease.OutSine).AsyncWaitForCompletion();
+            data.cgMain.interactable = data.cgMain.blocksRaycasts = true;
+        }
+    }
+
+
 
     async void ProceedGuestLogin()
     {
@@ -138,9 +171,11 @@ public class AuthScreenView : IMonoState
         data.googleLogin.onClick.RemoveListener(ProceedGoogleSignIn);
     }
 
-    public void OnDisable(Action OnDisableCompleted = null)
+    public async void OnDisable(Action OnDisableCompleted = null)
     {
         DeInitListeners();
+        data.cgMain.interactable = false;
+        await data.cgMain.DOFade(0f, 0.25f).SetEase(Ease.OutSine).AsyncWaitForCompletion();
         OnDisableCompleted?.Invoke();
     }
 }
