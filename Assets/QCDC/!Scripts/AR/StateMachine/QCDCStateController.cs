@@ -10,8 +10,7 @@ public class QCDCStateController : MonoBehaviour
     Dictionary<Type, IState> stateReg;
     [SerializeField] Data_SpawnQCDC spawnData;
     [SerializeField] Data_PosingQCDC posingData;
-    [SerializeField] Data_QCDC_Interaction_1 interaction1Data;
-    [SerializeField] Data_QCDC_Interaction_2 interaction2Data;
+    [SerializeField] Data_QCDC_Interaction interaction1Data;
 
     // OtherFields...
     Camera _mainCam;
@@ -33,7 +32,7 @@ public class QCDCStateController : MonoBehaviour
     void OnEnable()
     {
         InitializeStateRegistery();
-        
+        Screen.orientation = ScreenOrientation.LandscapeLeft;
     }
 
     private void Start()
@@ -57,8 +56,7 @@ public class QCDCStateController : MonoBehaviour
 
         stateReg.Add(typeof(State_SpawnQCDC), new State_SpawnQCDC(this, spawnData));
         stateReg.Add(typeof(State_PosingQCDC), new State_PosingQCDC(this, posingData));
-        stateReg.Add(typeof(State_QCDC_Interaction_1), new State_QCDC_Interaction_1(this, interaction1Data));
-        stateReg.Add(typeof(State_QCDC_Interaction_2), new State_QCDC_Interaction_2(this, interaction2Data));
+        stateReg.Add(typeof(State_QCDC_Interaction), new State_QCDC_Interaction(this, interaction1Data));
     }
 
     public void InitiateStateChange(Type type)
