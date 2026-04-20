@@ -1,10 +1,17 @@
 using DG.Tweening;
 using System;
 using UnityEngine;
+using TMPro;
 
 public class QCDCInteractor : MonoBehaviour
 {
     [SerializeField] ParticleSystem smokeParticleSystem;
+    [SerializeField] PartsInfo partInfoData;
+    [SerializeField] CanvasGroup indCg;
+    [SerializeField] Transform indicator;
+    [SerializeField] TextMeshProUGUI partName;
+    int partIndex = 0;
+
     [field: SerializeField]
     public Animator Animator
     {
@@ -12,8 +19,7 @@ public class QCDCInteractor : MonoBehaviour
     }
 
     bool isChangingAnimationState = false;
-    [SerializeField] PartData[] femaleParts;
-    [SerializeField] PartData[] maleParts;
+    [SerializeField] PartData[] parts;
 
     public void PlaySmokeParticle()
     { 
@@ -64,15 +70,14 @@ public class QCDCInteractor : MonoBehaviour
     {   
         Sequence seq = DOTween.Sequence();
 
-        foreach (var i in femaleParts)
+        foreach (var i in parts)
         { 
             seq.Join(i.partTransform.DOLocalMove(i.ExplodedLocalPosition , 0.5f).SetEase(Ease.OutSine));
         }
-
-        foreach (var i in maleParts)
-        { 
-            seq.Join(i.partTransform.DOLocalMove(i.ExplodedLocalPosition , 0.5f).SetEase(Ease.OutSine));
-        }
+        seq.Join(indCg.DOFade(1f, 0.25f).SetEase(Ease.OutSine));
+        partIndex = 0;
+        Vector3 explosionDiff = parts[partIndex].partTransform.parent.TransformPoint(parts[partIndex].ExplodedLocalPosition) - parts[partIndex].partTransform.parent.TransformPoint(parts[partIndex].InitialLocalPosition);
+        indicator.position = parts[partIndex].IndicationTransform.position + explosionDiff;
 
         return seq;
     }
@@ -81,26 +86,64 @@ public class QCDCInteractor : MonoBehaviour
     {
         Sequence seq = DOTween.Sequence();
 
-        foreach (var i in femaleParts)
+        foreach (var i in parts)
         {
             seq.Join(i.partTransform.DOLocalMove(i.InitialLocalPosition, 0.5f).SetEase(Ease.OutSine));
         }
 
-        foreach (var i in maleParts)
-        {
-            seq.Join(i.partTransform.DOLocalMove(i.InitialLocalPosition, 0.5f).SetEase(Ease.OutSine));
-        }
+        seq.Join(indCg.DOFade(0f, 0.25f).SetEase(Ease.OutSine));
 
         return seq;
     }
 
+    public void OnTraversal(int modifier)
+    {
+        partIndex += modifier;
+        
+        if(partIndex < 0)
+            partIndex = parts.Length-1;
+
+        partIndex %= parts.Length;
+        UpdateIndicator();
+    }
+
+    void UpdateIndicator()
+    {
+        if (partIndex >= 0 || partIndex < parts.Length)
+        {
+            indicator.position = parts[partIndex].IndicationTransform.position;
+            partName?.SetText(partInfoData.descReg[parts[partIndex].partID].partName);
+        }
+    }
+
+    public void PopulateDescription(TextMeshProUGUI textInfo)
+    {
+        int id = parts[partIndex].partID;
+        if (partInfoData.descReg.ContainsKey(id))
+        {
+            textInfo?.SetText(partInfoData.descReg[id].description);
+        }
+    }
+
+    //[ContextMenu("Set Indication Position")]
+    //public void Func()
+    //{
+    //    for (int i = 0; i < parts.Length; i++)
+    //    {
+    //        if (parts[i].partTransform != null)
+    //        {
+    //            parts[i].IndicationTransform = parts[i].partTransform.Find("IndicationPoint");
+    //        }
+    //    }
+    //}
+
     //public void OnValidate()
     //{
-    //    for (int i = 0; i < femaleParts.Length; i++)
+    //    for (int i = 0; i < parts.Length; i++)
     //    {
-    //        if (femaleParts[i].partTransform != null)
+    //        if (parts[i].partTransform != null)
     //        {
-    //            femaleParts[i].InitialLocalPosition = femaleParts[i].partTransform.localPosition;
+    //            parts[i].InitialLocalPosition = parts[i].partTransform.localPosition;
     //        }
     //    }
 
@@ -116,11 +159,11 @@ public class QCDCInteractor : MonoBehaviour
     //[ContextMenu("Set Exploded Position")]
     //public void SetExplodedPosition()
     //{
-    //    for (int i = 0; i < femaleParts.Length; i++)
+    //    for (int i = 0; i < parts.Length; i++)
     //    {
-    //        if (femaleParts[i].partTransform != null)
+    //        if (parts[i].partTransform != null)
     //        {
-    //            femaleParts[i].ExplodedLocalPosition = femaleParts[i].partTransform.localPosition;
+    //            parts[i].ExplodedLocalPosition = parts[i].partTransform.localPosition;
     //        }
     //    }
 
@@ -139,8 +182,10 @@ public class QCDCInteractor : MonoBehaviour
 public struct PartData
 {
     public Transform partTransform;
+    public Transform IndicationTransform;
     public Vector3 InitialLocalPosition;
     public Vector3 ExplodedLocalPosition;
+    public int partID;
 }
 
 public enum QCDCAnimationState

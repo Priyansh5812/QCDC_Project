@@ -22,6 +22,8 @@ public class State_QCDC_Interaction : IState
     public void OnEnter()
     {
         Debug.Log("State_QCDC_Interaction_1: Enter");
+
+        InitListeners();
         isChangingAnimation = true;
         qcdcInteractor ??= stateController.QcdcInteractor;
         qcdcInteractor.SetAnimationState(QCDCAnimationState.INTERACTION_1 , OnChangeCompletion);
@@ -32,8 +34,6 @@ public class State_QCDC_Interaction : IState
         initialScaleMag = targetScale.magnitude;
 
         //-------------
-        InitListeners();
-        PrepareStartup();
     }
 
     void InitListeners()
@@ -41,18 +41,27 @@ public class State_QCDC_Interaction : IState
         data.backBtn.onClick.AddListener(CloseView);
         data.tog_NormalView.onValueChanged.AddListener(OnNormalModeToggled);
         data.tog_ExplodedView.onValueChanged.AddListener(OnExplodedModeToggled);
+        data.leftTraversal.onClick.AddListener(OnLeftTraversal);
+        data.rightTraversal.onClick.AddListener(OnRightTraversal);
     }
 
     async void PrepareStartup()
     {
-        SetViewFor(QCDCAnimationState.INTERACTION_1);
+        qcdcInteractor.PopulateDescription(data.partDescription);
         data.cgMain.interactable = false;
-        data.cgMain.blocksRaycasts = true;
+        data.cgMain.blocksRaycasts = false;
         await data.cgMain.DOFade(1f, 0.25f).SetEase(Ease.OutSine).AsyncWaitForCompletion();
         data.cgMain.interactable = true;
+        data.cgMain.blocksRaycasts = true;
+        Debug.Log("Startuped");
+        SetViewFor(QCDCAnimationState.INTERACTION_1);
     }
 
-    void OnChangeCompletion() => isChangingAnimation = false;
+    void OnChangeCompletion()
+    { 
+        isChangingAnimation = false;
+        PrepareStartup();
+    }
     #endregion
 
     public void OnUpdate()
@@ -106,6 +115,7 @@ public class State_QCDC_Interaction : IState
 
     void SwitchNormalMode()
     {
+        Debug.Log("Switched to Normal");
         data.cgMain.interactable = false;
         isChangingAnimation = true;
         SetViewFor(QCDCAnimationState.INTERACTION_1);
@@ -120,6 +130,7 @@ public class State_QCDC_Interaction : IState
 
     void SwitchExplodedMode()
     {
+        Debug.Log("Switched to Exploded");
         data.cgMain.interactable = false;
         isChangingAnimation = true;
         SetViewFor(QCDCAnimationState.INTERACTION_2);
@@ -143,6 +154,18 @@ public class State_QCDC_Interaction : IState
         data.tog_NormalView.SetIsOnWithoutNotify(state == QCDCAnimationState.INTERACTION_1);
     }
 
+    void OnLeftTraversal()
+    {
+        qcdcInteractor.OnTraversal(1);
+        qcdcInteractor.PopulateDescription(data.partDescription);
+    }
+
+    void OnRightTraversal()
+    { 
+        qcdcInteractor.OnTraversal(-1);
+        qcdcInteractor.PopulateDescription(data.partDescription);
+    }
+
 
     #region DEINIT
     void CloseView()
@@ -163,6 +186,8 @@ public class State_QCDC_Interaction : IState
         data.backBtn.onClick.RemoveListener(CloseView);
         data.tog_NormalView.onValueChanged.RemoveListener(OnNormalModeToggled);
         data.tog_ExplodedView.onValueChanged.RemoveListener(OnExplodedModeToggled);
+        data.leftTraversal.onClick.RemoveListener(OnLeftTraversal);
+        data.rightTraversal.onClick.RemoveListener(OnRightTraversal);
     }
     public void OnExit()
     {
