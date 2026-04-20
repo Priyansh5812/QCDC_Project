@@ -1,12 +1,14 @@
 using DG.Tweening;
 using UnityEngine;
-
+using UnityEngine.AddressableAssets;
+using UnityEngine.XR.ARFoundation;
 public class State_SpawnQCDC : IState
 {
     private QCDCStateController stateController;
     private Data_SpawnQCDC data;
     bool wasReadPerformed = false;
     bool isUnderAnimation = false;
+
     public State_SpawnQCDC(QCDCStateController controller, Data_SpawnQCDC data)
     {
         stateController = controller;
@@ -75,7 +77,18 @@ public class State_SpawnQCDC : IState
             }
 
             stateController.QcdcInteractor = qcdc;
+
+            TryAddARAnchor(qcdc);
+            
             CloseView();
+        }
+    }
+
+    void TryAddARAnchor(QCDCInteractor interactor)
+    {
+        if (!interactor.gameObject.TryGetComponent<ARAnchor>(out var anchor))
+        { 
+            interactor.gameObject.AddComponent<ARAnchor>();
         }
     }
 
