@@ -46,6 +46,7 @@ public struct Data_QCDC_Interaction
     public float pinchMultiplier;
     public float lerpSpeed;
     public Button backBtn;
+    public Button playSim;
     public Button leftTraversal , rightTraversal;
     public TextMeshProUGUI partDescription;
     public Toggle tog_NormalView;

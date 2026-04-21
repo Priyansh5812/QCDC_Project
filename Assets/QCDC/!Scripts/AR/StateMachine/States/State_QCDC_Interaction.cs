@@ -43,6 +43,7 @@ public class State_QCDC_Interaction : IState
         data.tog_ExplodedView.onValueChanged.AddListener(OnExplodedModeToggled);
         data.leftTraversal.onClick.AddListener(OnLeftTraversal);
         data.rightTraversal.onClick.AddListener(OnRightTraversal);
+        data.playSim.onClick.AddListener(PlaySimulation);
     }
 
     async void PrepareStartup()
@@ -135,12 +136,19 @@ public class State_QCDC_Interaction : IState
         isChangingAnimation = true;
         qcdcInteractor.PopulateDescription(data.partDescription);
         SetViewFor(QCDCAnimationState.INTERACTION_2);
+        qcdcInteractor.PlayAnimationFor(QCDCAnimationState.INTERACTION_2);
         qcdcInteractor.SetAnimationState(QCDCAnimationState.INTERACTION_2, OnExplodedModeCompletion);
         void OnExplodedModeCompletion()
         {
             isChangingAnimation = false;
             data.cgMain.interactable = true;
+            
         }
+    }
+
+    void PlaySimulation()
+    {
+        qcdcInteractor.PlayAnimationFor(QCDCAnimationState.INTERACTION_1);
     }
 
     #endregion
@@ -174,7 +182,7 @@ public class State_QCDC_Interaction : IState
         data.cgMain.interactable = data.cgMain.blocksRaycasts = false;
         _=data.cgMain.DOFade(0f, 0.25f).SetEase(Ease.OutSine).AsyncWaitForCompletion();
         qcdcInteractor.SetAnimationState(QCDCAnimationState.INTERACTION_1 , OnAnimationSetCompletion);
-        
+        qcdcInteractor.PlayAnimationFor(QCDCAnimationState.INTERACTION_2); // Reset the anim state
         void OnAnimationSetCompletion()
         {
             SetViewFor(QCDCAnimationState.INTERACTION_1);
@@ -189,6 +197,7 @@ public class State_QCDC_Interaction : IState
         data.tog_ExplodedView.onValueChanged.RemoveListener(OnExplodedModeToggled);
         data.leftTraversal.onClick.RemoveListener(OnLeftTraversal);
         data.rightTraversal.onClick.RemoveListener(OnRightTraversal);
+        data.playSim.onClick.RemoveListener(PlaySimulation);
     }
     public void OnExit()
     {

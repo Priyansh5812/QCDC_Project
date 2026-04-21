@@ -1,7 +1,7 @@
 using DG.Tweening;
 using System;
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 
 public class QCDCInteractor : MonoBehaviour
 {
@@ -20,7 +20,9 @@ public class QCDCInteractor : MonoBehaviour
 
     bool isChangingAnimationState = false;
     [SerializeField] PartData[] parts;
-
+    public int interactionHash = Animator.StringToHash("Interaction-1");
+    public int noneHash = Animator.StringToHash("None");
+    public QCDCAnimationState currState = QCDCAnimationState.INTERACTION_1;
     public void PlaySmokeParticle()
     { 
         smokeParticleSystem.Emit(30);
@@ -33,38 +35,21 @@ public class QCDCInteractor : MonoBehaviour
 
         isChangingAnimationState = true;
 
-        float targetValue;
-        float currValue = Animator.GetFloat("BlendKey");
-        switch (State)
-        {
-            case QCDCAnimationState.INTERACTION_1:
-                targetValue = 0;
-                break;
 
-            case QCDCAnimationState.INTERACTION_2:
-                targetValue = 1;
-                break;
-            
-            default:
-                targetValue = 0;
-                break;  
-        }
-
-        if (targetValue == currValue)
+        if (State == currState)
         {
             OnAnimationStateChanged?.Invoke();
             isChangingAnimationState = false;
             return;
         }
-
-        await DOVirtual.Float(currValue, targetValue, 0.5f, UpdateBlendKeyValue).SetEase(Ease.OutSine).AsyncWaitForCompletion();
-        Sequence seq = targetValue == 1 ? ViewExploded() : ViewNormal();
+        currState = State;
+        Sequence seq = State == QCDCAnimationState.INTERACTION_2 ? ViewExploded() : ViewNormal();
         await seq.AsyncWaitForCompletion();
         OnAnimationStateChanged?.Invoke();
         isChangingAnimationState = false;
     }
 
-    void UpdateBlendKeyValue(float value) => Animator.SetFloat("BlendKey", value);
+
 
     Sequence ViewExploded()
     {   
@@ -75,7 +60,6 @@ public class QCDCInteractor : MonoBehaviour
             seq.Join(i.partTransform.DOLocalMove(i.ExplodedLocalPosition , 0.5f).SetEase(Ease.OutSine));
         }
         seq.Join(indCg.DOFade(1f, 0.25f).SetEase(Ease.OutSine));
-        partIndex = 0;
         Vector3 explosionDiff = parts[partIndex].partTransform.parent.TransformPoint(parts[partIndex].ExplodedLocalPosition) - parts[partIndex].partTransform.parent.TransformPoint(parts[partIndex].InitialLocalPosition);
         indicator.position = parts[partIndex].IndicationTransform.position + explosionDiff;
 
@@ -94,6 +78,24 @@ public class QCDCInteractor : MonoBehaviour
         seq.Join(indCg.DOFade(0f, 0.25f).SetEase(Ease.OutSine));
 
         return seq;
+    }
+
+    public void PlayAnimationFor(QCDCAnimationState animationState)
+    {
+        switch (animationState)
+        {
+            case QCDCAnimationState.INTERACTION_1:
+                this.Animator.Play(interactionHash);
+                break;
+            case QCDCAnimationState.INTERACTION_2:
+                this.Animator.Play(noneHash);
+                break;
+            default:
+
+                break;
+        }
+
+        
     }
 
     public void OnTraversal(int modifier)
