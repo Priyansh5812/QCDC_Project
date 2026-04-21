@@ -133,6 +133,7 @@ public class State_QCDC_Interaction : IState
         Debug.Log("Switched to Exploded");
         data.cgMain.interactable = false;
         isChangingAnimation = true;
+        qcdcInteractor.PopulateDescription(data.partDescription);
         SetViewFor(QCDCAnimationState.INTERACTION_2);
         qcdcInteractor.SetAnimationState(QCDCAnimationState.INTERACTION_2, OnExplodedModeCompletion);
         void OnExplodedModeCompletion()

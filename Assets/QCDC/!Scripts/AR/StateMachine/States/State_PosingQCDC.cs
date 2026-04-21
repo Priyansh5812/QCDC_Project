@@ -24,11 +24,11 @@ public class State_PosingQCDC : IState
     public void OnEnter()
     {
         Debug.Log("State_PosingQCDC: Enter");
+        SetTrackedPlanes(true);
         data.dragDelta.EnableDirectActionIfModeUsed();
         data.pinchDelta.EnableDirectActionIfModeUsed();
         data.twistDelta.EnableDirectActionIfModeUsed();
         qcdcTransform = stateController.QcdcInteractor.transform;
-
         //----------------
         targetPosition = qcdcTransform.position;
         targetRotation = qcdcTransform.rotation;
@@ -129,8 +129,19 @@ public class State_PosingQCDC : IState
         stateController.InitiateStateChange(typeof(State_QCDC_Interaction));
     }
 
+    void SetTrackedPlanes(bool value)
+    {
+        foreach (var i in data.planeManager.trackables)
+        { 
+            i.gameObject.SetActive(value);
+        }
+
+        data.planeManager.enabled = value;
+    }
+
     public void OnExit()
     {
+        SetTrackedPlanes(false);
         data.dragDelta.DisableDirectActionIfModeUsed();
         data.pinchDelta.DisableDirectActionIfModeUsed();
         data.twistDelta.DisableDirectActionIfModeUsed();

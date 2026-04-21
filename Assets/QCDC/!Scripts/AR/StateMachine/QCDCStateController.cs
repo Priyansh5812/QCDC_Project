@@ -1,6 +1,8 @@
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 
 
@@ -14,7 +16,7 @@ public class QCDCStateController : MonoBehaviour
 
     // OtherFields...
     Camera _mainCam;
-
+    AsyncOperationHandle<GameObject> handle;
     public Camera MainCamera
     {
         get
@@ -67,5 +69,23 @@ public class QCDCStateController : MonoBehaviour
         currState = stateReg[type];
         currState?.OnEnter();
     }
-    
+
+    public void SetAssetLoadHandle(AsyncOperationHandle<GameObject> handle)
+    { 
+        this.handle = handle;
+    }
+
+    public void OnDisable()
+    {
+        if (handle.Status == AsyncOperationStatus.None)
+            return;
+
+        if (handle.Status == AsyncOperationStatus.Succeeded && QcdcInteractor != null)
+        {
+            Addressables.Release(handle);
+            Destroy(QcdcInteractor);
+            QcdcInteractor = null;
+        }
+    }
+
 }

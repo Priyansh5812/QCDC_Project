@@ -1,6 +1,9 @@
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using DG.Tweening.Core.Easing;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.XR.ARFoundation;
 public class State_SpawnQCDC : IState
 {
@@ -8,7 +11,10 @@ public class State_SpawnQCDC : IState
     private Data_SpawnQCDC data;
     bool wasReadPerformed = false;
     bool isUnderAnimation = false;
-
+    bool isAssetLoading = false;
+    bool isAssetLoaded = false;
+    bool isSpawning = false;
+    AsyncOperationHandle<GameObject> handle;
     public State_SpawnQCDC(QCDCStateController controller, Data_SpawnQCDC data)
     {
         stateController = controller;
@@ -20,6 +26,7 @@ public class State_SpawnQCDC : IState
         Debug.Log("State_SpawnQCDC: Enter");
         data.inputButtonReader.EnableDirectActionIfModeUsed();
         PrepareView();
+        InitiateAssetLoad();
     }
 
     // Check for Spawning...
@@ -60,11 +67,28 @@ public class State_SpawnQCDC : IState
         stateController.InitiateStateChange(typeof(State_PosingQCDC));
     }
 
-    void SpawnQCDC()
+    async void SpawnQCDC()
     {
+        if (isSpawning)
+            return;
+
         if (data.interactor.TryGetCurrentARRaycastHit(out var raycastHit))
         {
-            var qcdc = GameObject.Instantiate(data.qcdcPrefab, null);
+            isSpawning = true;
+            SetActiveSpawningOverlay(true);
+
+            while (isAssetLoading)
+                await UniTask.Yield();
+
+            SetActiveSpawningOverlay(false);
+            if (handle.Result == null)
+            {
+                isSpawning = false;
+                return;
+            }
+
+            //var qcdc = GameObject.Instantiate(data.qcdcPrefab, null);
+            var qcdc = GameObject.Instantiate(handle.Result, null).GetComponent<QCDCInteractor>();
             qcdc.transform.position = raycastHit.pose.position;
             Vector3 direction = stateController.MainCamera.transform.position - qcdc.transform.position;
             direction.y = 0f;
@@ -77,11 +101,34 @@ public class State_SpawnQCDC : IState
             }
 
             stateController.QcdcInteractor = qcdc;
-
             TryAddARAnchor(qcdc);
-            
             CloseView();
+            isSpawning = false;
         }
+    }
+
+    void SetActiveSpawningOverlay(bool value)
+    { 
+        data.spawningOverlay.SetActive(value);
+    }
+
+    void InitiateAssetLoad()
+    {
+        if (isAssetLoaded || isAssetLoading)
+            return;
+
+        isAssetLoading = true;
+        var handle = data.qcdcAsset.LoadAssetAsync();
+        handle.Completed += OnAssetLoadCompleted;
+    }
+
+    void OnAssetLoadCompleted(AsyncOperationHandle<GameObject> obj)
+    {
+        isAssetLoading = false;
+        isAssetLoaded = true;
+        handle = obj;
+        stateController.SetAssetLoadHandle(obj);
+        
     }
 
     void TryAddARAnchor(QCDCInteractor interactor)

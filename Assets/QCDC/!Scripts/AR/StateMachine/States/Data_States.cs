@@ -1,22 +1,28 @@
 using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.UI;
+using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.Interaction.Toolkit.Inputs.Readers;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
+
 
 [Serializable]
 public struct Data_SpawnQCDC
 {
     public QCDCInteractor qcdcPrefab;
+    public AssetReferenceGameObject qcdcAsset;
     public XRRayInteractor interactor;
     public XRInputButtonReader inputButtonReader;
     public CanvasGroup cgMain;
+    public GameObject spawningOverlay;
 }
 
 [Serializable]
 public struct Data_PosingQCDC
-{   
+{
+    public ARPlaneManager planeManager;
     public XRInputValueReader<Vector2> dragDelta;
     public XRInputValueReader<float> pinchDelta;
     public XRInputValueReader<float> twistDelta;
