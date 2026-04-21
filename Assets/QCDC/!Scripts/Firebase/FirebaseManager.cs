@@ -8,6 +8,13 @@ using Pkay.Utils;
 using Firebase.Extensions;
 
 
+/// <summary>
+/// Wrapper and helper for Firebase authentication and Google sign-in.
+/// Implements initialization of Firebase SDK, provides common sign-in
+/// flows (email/password, anonymous, Google) and helper utilities for
+/// handling authentication state. This is a singleton so it can be
+/// accessed globally via <see cref="Singleton{T}"/> base class.
+/// </summary>
 public class FirebaseManager : Singleton<FirebaseManager>
 {
     private FirebaseAuth fireAuth;
@@ -25,12 +32,16 @@ public class FirebaseManager : Singleton<FirebaseManager>
     public static event Action OnFirebaseInitialized;
     public static event Action OnFirebaseDependenciesError;
     public static event Action<object, System.EventArgs> OnAuthStateChanged;
+    // Web client id used to configure Google Sign-In. Replace with your
+    // project's client id when necessary.
     private readonly string WebClientID = "991491842989-a46uq429ipfht0qupq60ln1momc6lp2b.apps.googleusercontent.com";
     
 
     protected override void Awake()
     {
         base.Awake();
+        // Start Firebase initialization on Awake so authentication is ready
+        // when other systems request it.
         InitializeFirebase();
     }
 
@@ -47,6 +58,8 @@ public class FirebaseManager : Singleton<FirebaseManager>
             var dependencyStatus = task.Result;
             if (dependencyStatus == Firebase.DependencyStatus.Available)
             {
+                // Cache the auth instance and notify listeners that firebase
+                // is initialized. Also listen for auth state changes.
                 fireAuth = FirebaseAuth.DefaultInstance;
                 IsFirebaseActive = true;
                 OnFirebaseInitialized?.Invoke();
@@ -78,14 +91,19 @@ public class FirebaseManager : Singleton<FirebaseManager>
             RequestAuthCode = true
         };
 
+        // Cache the GoogleSignIn instance after configuration.
         googleAuth = GoogleSignIn.DefaultInstance;
 
         IsGoogleSignInInitialized = true;
     }
 
     #region Auth
+    // Forward Firebase auth state changes to external subscribers.
     private void AuthStateChanged(object sender , EventArgs args) => OnAuthStateChanged?.Invoke(sender, args);
 
+    /// <summary>
+    /// Get the currently signed in Firebase user or null if none.
+    /// </summary>
     public FirebaseUser GetCurrentFirebaseUser() => fireAuth.CurrentUser;
 
     public async UniTask TryEmailPassLogin(string email, string pass, Action OnSignInSuccess = null, Action<string> OnSignInFailed = null)
@@ -105,8 +123,10 @@ public class FirebaseManager : Singleton<FirebaseManager>
                 OnSignInSuccess?.Invoke();
             }
         }
-        catch (FirebaseException ex) 
+        catch (FirebaseException ex)
         {
+            // Convert Firebase exceptions to user friendly messages and
+            // invoke the failure callback on the main thread.
             await UniTask.SwitchToMainThread();
             OnSignInFailed?.Invoke(GetFirebaseErrorMessage(ex));
         }
@@ -130,12 +150,13 @@ public class FirebaseManager : Singleton<FirebaseManager>
                 OnSignUpSuccess?.Invoke();
             }
         }
-        catch (FirebaseException ex) 
+        catch (FirebaseException ex)
         {
+            // Log the raw exception and convert it to a user friendly
+            // message for callbacks.
             Debug.Log(ex.Message);
 
             await UniTask.SwitchToMainThread();
-            
             OnSignUpFailed?.Invoke(GetFirebaseErrorMessage(ex));
         }
     }
@@ -163,6 +184,7 @@ public class FirebaseManager : Singleton<FirebaseManager>
         }
         catch (FirebaseException e)
         {
+            // Return a friendly error for anonymous login failures.
             OnLoginFailed?.Invoke(GetFirebaseErrorMessage(e));
         }
     }
@@ -180,6 +202,8 @@ public class FirebaseManager : Singleton<FirebaseManager>
         Utils.Info("Initiated");
         try
         {
+            // Attempt to sign in with Google; this returns a token used to
+            // authenticate with Firebase.
             user = await googleAuth.SignIn().AsUniTask();
             await UniTask.SwitchToMainThread();
         }
@@ -194,6 +218,8 @@ public class FirebaseManager : Singleton<FirebaseManager>
 
         try
         {
+            // Exchange the Google ID token for Firebase credentials and sign
+            // in to Firebase using those credentials.
             Credential userCredentials = GoogleAuthProvider.GetCredential(user.IdToken, null);
             fireUser = await fireAuth.SignInWithCredentialAsync(userCredentials).AsUniTask();
             await UniTask.SwitchToMainThread();
@@ -215,27 +241,16 @@ public class FirebaseManager : Singleton<FirebaseManager>
         SignOutUser();
     }
 
-    public async UniTask SignOutUser(bool forceDeletionIfGuest = true , Action OnOperationSuccess = null, Action OnOperationFailed = null)
+    public async UniTask SignOutUser(Action OnOperationSuccess = null, Action OnOperationFailed = null)
     {
+        // If the user signed in with Google, sign out from the Google SDK as
+        // well so that future sign-ins require explicit account selection.
         if (fireAuth.CurrentUser.IsEmailVerified)
             googleAuth.SignOut();
-
-        if (fireAuth.CurrentUser.IsAnonymous && forceDeletionIfGuest)
-        {
-            await DeleteUserAccount(OnOperationSuccess, OnOperationFailed);
-            return;
-        }
 
         fireAuth.SignOut();
         OnOperationSuccess?.Invoke();
     }
-
-    public async UniTask DeleteUserAccount(Action OnOperationSuccess = null, Action OnOperationFailed = null)
-    {
-        // TODO
-        
-    }
-
 
 
     #endregion

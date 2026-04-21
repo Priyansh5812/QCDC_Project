@@ -5,6 +5,9 @@ using UnityEngine.SceneManagement;
 
 public class GameScreenView : IMonoState
 {
+    /// <summary>
+    /// Indicates whether Start has been called already for this state.
+    /// </summary>
     public bool IsAlreadyTriggered { get; private set; }
     GameScreenData data;
     MenuStateController controller;
@@ -15,6 +18,10 @@ public class GameScreenView : IMonoState
 
     }
 
+    /// <summary>
+    /// Called when this view is enabled. Wires up UI listeners and animates
+    /// the UI into view.
+    /// </summary>
     public void OnEnable(Action OnEnableCompleted = null)
     {
         InitListeners();
@@ -32,6 +39,8 @@ public class GameScreenView : IMonoState
 
     public void Start(Action OnStartCompleted = null)
     {
+        // Mark this state as started to avoid repeating initial setup if
+        // re-enabled later.
         IsAlreadyTriggered = true;
         OnStartCompleted?.Invoke();
     }
@@ -52,14 +61,12 @@ public class GameScreenView : IMonoState
 
     async void OnSignout()
     {
+        // Trigger sign out and return to the auth screen state.
         data.cgMain.interactable = false;
         _=FirebaseManager.Instance.SignOutUser();
         await UniTask.Yield();
         controller.InitiateStateChange(typeof(AuthScreenView));
-
     }
-
-
 
     void DeInitListeners()
     {
@@ -70,6 +77,7 @@ public class GameScreenView : IMonoState
     {
         DeInitListeners();
         data.cgMain.interactable = false;
+        data.cgMain.blocksRaycasts = false;
         await data.cgMain.DOFade(0f, 0.25f).SetEase(Ease.OutSine).AsyncWaitForCompletion();
         OnDisableCompleted?.Invoke();
     }

@@ -3,6 +3,9 @@ using UnityEngine;
 
 public class State_QCDC_Interaction : IState
 {
+    // Manages the interaction UI and manipulation of the spawned QCDC. The
+    // interaction state supports rotating via twist input, scaling via
+    // pinch input and switching between normal and exploded views.
     private QCDCStateController stateController;
     private Data_QCDC_Interaction data;
     bool isChangingAnimation = false;
@@ -60,6 +63,8 @@ public class State_QCDC_Interaction : IState
 
     void OnChangeCompletion()
     { 
+        // Called when the initial animation finishes; we now enable user
+        // interaction and UI.
         isChangingAnimation = false;
         PrepareStartup();
     }
@@ -84,11 +89,14 @@ public class State_QCDC_Interaction : IState
 
     void ComputeRotation()
     {   
+        // Apply twist input to the desired rotation.
         targetRotation *= Quaternion.Euler(0, -30.0f * twistDelta * data.twistDeltaModifier * data.twistMultiplier * Time.deltaTime, 0);
     }
 
     void ComputeScale()
     { 
+        // Update the target uniform scale based on pinch input and clamp it
+        // to a reasonable range.
         targetScale += Vector3.one * pinchDelta * data.pinchDeltaModifier;
         targetScale = Vector3.ClampMagnitude(targetScale, initialScaleMag * 1.5f);
         if (targetScale.x < initialScaleMag / 2)
@@ -97,6 +105,7 @@ public class State_QCDC_Interaction : IState
 
     void InterpolationUpdate()
     {
+        // Smoothly interpolate the transform towards the target rotation.
         stateController.QcdcInteractor.transform.rotation = Quaternion.Slerp(stateController.QcdcInteractor.transform.rotation, targetRotation, data.lerpSpeed * Time.deltaTime);
     }
 
@@ -179,6 +188,8 @@ public class State_QCDC_Interaction : IState
     #region DEINIT
     void CloseView()
     {
+        // Fade out UI and reset animation/state before transitioning back to
+        // the posing state.
         data.cgMain.interactable = data.cgMain.blocksRaycasts = false;
         _=data.cgMain.DOFade(0f, 0.25f).SetEase(Ease.OutSine).AsyncWaitForCompletion();
         qcdcInteractor.SetAnimationState(QCDCAnimationState.INTERACTION_1 , OnAnimationSetCompletion);

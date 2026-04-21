@@ -3,6 +3,9 @@ using UnityEngine;
 
 public class State_PosingQCDC : IState
 {
+    // Handles user driven placement and posing of the spawned QCDC in AR.
+    // This state reads drag/pinch/twist input, computes target pose and
+    // lerps the object's transform towards the target.
     private QCDCStateController stateController;
     private Data_PosingQCDC data;
     Vector2 posDelta;
@@ -51,6 +54,7 @@ public class State_PosingQCDC : IState
 
     public void OnUpdate()
     {
+        // Read inputs, compute desired pose and smoothly interpolate.
         ReadDelta();
         ComputeQCDCPose();
         LerpPose();
@@ -79,6 +83,7 @@ public class State_PosingQCDC : IState
 
     void ComputeLookRotation()
     {   
+        // Face the camera while keeping upright.
         Vector3 targetDirection = stateController.MainCamera.transform.position - qcdcTransform.position;
         targetDirection.y = 0f;
         Quaternion rotation = Quaternion.LookRotation(targetDirection, Vector3.up);
@@ -89,11 +94,14 @@ public class State_PosingQCDC : IState
 
     void ComputeTwistRotation()
     {
+        // Apply twist input to rotate around vertical axis.
         targetRotation *= Quaternion.Euler(0, -30.0f * data.twistDelta.ReadValue() * data.twistDeltaModifier * data.twistMultiplier * Time.deltaTime, 0);
     }
 
     void ComputePosition()
     {
+        // Translate target position based on drag input relative to the
+        // camera's forward direction (projected to horizontal plane).
         Vector3 verticalDirection = (stateController.MainCamera.transform.position - qcdcTransform.position).normalized;
         verticalDirection.y = 0f;
         verticalDirection *= -1;
@@ -104,6 +112,7 @@ public class State_PosingQCDC : IState
 
     void ComputeScale()
     {
+        // Scale object uniformly based on pinch input and clamp range.
         targetScale += Vector3.one * pinchDelta * data.pinchDeltaModifier;
         targetScale = Vector3.ClampMagnitude(targetScale, initialScaleMag * 1.5f);
         if (targetScale.x < initialScaleMag / 2)

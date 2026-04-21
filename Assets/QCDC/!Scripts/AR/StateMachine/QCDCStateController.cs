@@ -6,6 +6,11 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 
 
 
+/// <summary>
+/// Simple FSM controller for the QCDC feature. Manages state instances,
+/// forwards Update calls and holds shared data like the spawned
+/// <see cref="QCDCInteractor"/> and camera reference.
+/// </summary>
 public class QCDCStateController : MonoBehaviour
 {
     IState currState;
@@ -14,7 +19,7 @@ public class QCDCStateController : MonoBehaviour
     [SerializeField] Data_PosingQCDC posingData;
     [SerializeField] Data_QCDC_Interaction interaction1Data;
 
-    // OtherFields...
+    // Cached main camera and addressables handle for cleanup.
     Camera _mainCam;
     AsyncOperationHandle<GameObject> handle;
     public Camera MainCamera
@@ -26,6 +31,10 @@ public class QCDCStateController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Reference to the runtime spawned interactor. States read and modify
+    /// this to control the in-scene QCDC instance.
+    /// </summary>
     public QCDCInteractor QcdcInteractor
     {
         get; set;
@@ -33,18 +42,21 @@ public class QCDCStateController : MonoBehaviour
     
     void OnEnable()
     {
+        // Ensure registry is constructed and lock orientation for AR.
         InitializeStateRegistery();
         Screen.orientation = ScreenOrientation.LandscapeLeft;
     }
 
     private void Start()
     {
+        // Start the workflow with the spawn state.
         InitiateStateChange(typeof(State_SpawnQCDC));
     }
 
 
     void Update()
     {
+        // Forward per-frame updates to the active state.
         currState?.OnUpdate();
     }
 
@@ -56,11 +68,16 @@ public class QCDCStateController : MonoBehaviour
 
         stateReg ??= new Dictionary<Type, IState>();
 
+        // Register concrete state instances with their required data.
         stateReg.Add(typeof(State_SpawnQCDC), new State_SpawnQCDC(this, spawnData));
         stateReg.Add(typeof(State_PosingQCDC), new State_PosingQCDC(this, posingData));
         stateReg.Add(typeof(State_QCDC_Interaction), new State_QCDC_Interaction(this, interaction1Data));
     }
 
+    /// <summary>
+    /// Transition to the given state type. Calls the current state's
+    /// OnExit and the target state's OnEnter.
+    /// </summary>
     public void InitiateStateChange(Type type)
     {
         if (!stateReg.ContainsKey(type))
@@ -77,6 +94,7 @@ public class QCDCStateController : MonoBehaviour
 
     public void OnDisable()
     {
+        // Clean up addressables and spawned object if loaded.
         if (handle.Status == AsyncOperationStatus.None)
             return;
 

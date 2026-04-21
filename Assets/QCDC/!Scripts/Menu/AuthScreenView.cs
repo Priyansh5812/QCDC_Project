@@ -5,12 +5,21 @@ using UnityEngine;
 
 public class AuthScreenView : IMonoState
 {
+    /// <summary>
+    /// Tracks whether Start has already been called for this state.
+    /// </summary>
     public bool IsAlreadyTriggered { get; private set; }
+
+    // References to view data and controllers used to drive authentication UI.
     AuthScreenData data;
     MenuStateController menuController;
     AuthScreenController controller;
     EmailAuthState emailAuthState;
     bool isChangingEmailAuthState = false;
+
+    /// <summary>
+    /// Construct the auth view with its data and parent menu controller.
+    /// </summary>
     public AuthScreenView(AuthScreenData data , MenuStateController controller)
     {
         this.data = data;
@@ -18,6 +27,10 @@ public class AuthScreenView : IMonoState
         this.menuController = controller;
     }
 
+    /// <summary>
+    /// Called when the view becomes active. Sets up UI listeners and waits
+    /// for Firebase initialization before showing the UI.
+    /// </summary>
     public void OnEnable(Action OnEnableCompleted = null)
     {
         InitListeners();
@@ -25,6 +38,10 @@ public class AuthScreenView : IMonoState
         OnEnableCompleted?.Invoke();
     }
 
+    /// <summary>
+    /// Called once when the view starts. Marks the view as triggered so
+    /// future enable calls can skip certain initialization steps.
+    /// </summary>
     public void Start(Action OnStartCompleted = null)
     {   
         IsAlreadyTriggered = true;
@@ -41,6 +58,7 @@ public class AuthScreenView : IMonoState
 
     void HandleInitialization()
     {
+        // Prepare UI hidden state while we wait for firebase or auth check.
         data.cgMain.interactable = false;
         data.cgMain.alpha = 0.0f;
 
@@ -50,6 +68,8 @@ public class AuthScreenView : IMonoState
         }
         else 
         {
+            // If firebase isn't ready yet, subscribe to the initialized
+            // event and let FirebaseManager handle de-init.
             FirebaseManager.OnFirebaseInitialized += PrepareStartup; // DeInit will be handled by the firebase
         }
 
@@ -58,6 +78,7 @@ public class AuthScreenView : IMonoState
 
     async void PrepareStartup()
     {   
+        // If there's already a signed-in user, skip to the game screen.
         if (FirebaseManager.Instance.GetCurrentFirebaseUser() != null)
         {
             menuController.InitiateStateChange(typeof(GameScreenView));
@@ -79,6 +100,7 @@ public class AuthScreenView : IMonoState
 
     void ProceedEmailPassAuth()
     {
+        // Route to login or signup flow based on current toggle state.
         switch (emailAuthState)
         {
             case EmailAuthState.LOGIN:
@@ -121,6 +143,7 @@ public class AuthScreenView : IMonoState
 
     void OnAuthInitiated()
     { 
+        // Disable UI while the auth flow is in progress.
         data.cgMain.interactable = false;
     }
 
@@ -133,6 +156,7 @@ public class AuthScreenView : IMonoState
 
     void OnAuthFailed(string reason)
     {
+        // Show error and re-enable UI so the user can try again.
         data.authStatus.SetText(reason);
         data.cgMain.interactable = true;
     }

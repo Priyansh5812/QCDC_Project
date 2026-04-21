@@ -7,6 +7,10 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.XR.ARFoundation;
 public class State_SpawnQCDC : IState
 {
+    // Responsible for spawning the QCDC prefab or addressable asset into
+    // the AR scene when the user taps the screen. Handles loading the
+    // addressable, showing spawn UI and transferring control to the
+    // posing state once spawned.
     private QCDCStateController stateController;
     private Data_SpawnQCDC data;
     bool wasReadPerformed = false;
@@ -29,7 +33,9 @@ public class State_SpawnQCDC : IState
         InitiateAssetLoad();
     }
 
-    // Check for Spawning...
+    // Called each frame while this state is active. In editor the prefab
+    // is instantiated immediately for convenience; on device it waits for
+    // the input reader and spawns at the AR raycast hit.
     public void OnUpdate()
     {
 #if UNITY_EDITOR
@@ -87,7 +93,7 @@ public class State_SpawnQCDC : IState
                 return;
             }
 
-            //var qcdc = GameObject.Instantiate(data.qcdcPrefab, null);
+            // Instantiate the loaded addressable prefab and set its pose.
             var qcdc = GameObject.Instantiate(handle.Result, null).GetComponent<QCDCInteractor>();
             qcdc.transform.position = raycastHit.pose.position;
             Vector3 direction = stateController.MainCamera.transform.position - qcdc.transform.position;
