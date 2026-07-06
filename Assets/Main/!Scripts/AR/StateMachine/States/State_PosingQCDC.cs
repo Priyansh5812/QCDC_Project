@@ -6,7 +6,7 @@ public class State_PosingQCDC : IState
     // Handles user driven placement and posing of the spawned QCDC in AR.
     // This state reads drag/pinch/twist input, computes target pose and
     // lerps the object's transform towards the target.
-    private QCDCStateController stateController;
+    private ArenaStateController stateController;
     private Data_PosingQCDC data;
     Vector2 posDelta;
     float pinchDelta;
@@ -18,7 +18,7 @@ public class State_PosingQCDC : IState
     float initialScaleMag;
     bool canComputePose;
     bool canLookRotation;
-    public State_PosingQCDC(QCDCStateController controller, Data_PosingQCDC data)
+    public State_PosingQCDC(ArenaStateController controller, Data_PosingQCDC data)
     {
         stateController = controller;
         this.data = data;
@@ -31,7 +31,7 @@ public class State_PosingQCDC : IState
         data.dragDelta.EnableDirectActionIfModeUsed();
         data.pinchDelta.EnableDirectActionIfModeUsed();
         data.twistDelta.EnableDirectActionIfModeUsed();
-        qcdcTransform = stateController.QcdcInteractor.transform;
+        qcdcTransform = stateController.ArenaSpawnerInstance.transform;
         //----------------
         targetPosition = qcdcTransform.position;
         targetRotation = qcdcTransform.rotation;

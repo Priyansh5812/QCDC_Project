@@ -2,7 +2,7 @@ using UnityEngine;
 
 /// <summary>
 /// Simple finite-state-machine state interface used by
-/// <see cref="QCDCStateController"/>. Implementers should provide logic
+/// <see cref="ArenaStateController"/>. Implementers should provide logic
 /// for entering, updating and exiting the state.
 /// </summary>
 public interface IState

@@ -6,7 +6,7 @@ public class State_QCDC_Interaction : IState
     // Manages the interaction UI and manipulation of the spawned QCDC. The
     // interaction state supports rotating via twist input, scaling via
     // pinch input and switching between normal and exploded views.
-    private QCDCStateController stateController;
+    private ArenaStateController stateController;
     private Data_QCDC_Interaction data;
     bool isChangingAnimation = false;
     Quaternion targetRotation;
@@ -15,7 +15,7 @@ public class State_QCDC_Interaction : IState
     float pinchDelta;
     float twistDelta;
     QCDCInteractor qcdcInteractor;
-    public State_QCDC_Interaction(QCDCStateController controller, Data_QCDC_Interaction data)
+    public State_QCDC_Interaction(ArenaStateController controller, Data_QCDC_Interaction data)
     {
         stateController = controller;
         this.data = data;
@@ -28,7 +28,7 @@ public class State_QCDC_Interaction : IState
 
         InitListeners();
         isChangingAnimation = true;
-        qcdcInteractor ??= stateController.QcdcInteractor;
+        //qcdcInteractor ??= stateController.ArenaSpawnerInstance;
         qcdcInteractor.SetAnimationState(QCDCAnimationState.INTERACTION_1 , OnChangeCompletion);
         data.twistDelta.EnableDirectActionIfModeUsed();
         data.pinchDelta.EnableDirectActionIfModeUsed();
@@ -106,7 +106,7 @@ public class State_QCDC_Interaction : IState
     void InterpolationUpdate()
     {
         // Smoothly interpolate the transform towards the target rotation.
-        stateController.QcdcInteractor.transform.rotation = Quaternion.Slerp(stateController.QcdcInteractor.transform.rotation, targetRotation, data.lerpSpeed * Time.deltaTime);
+        stateController.ArenaSpawnerInstance.transform.rotation = Quaternion.Slerp(stateController.ArenaSpawnerInstance.transform.rotation, targetRotation, data.lerpSpeed * Time.deltaTime);
     }
 
     #region CALLBACKS

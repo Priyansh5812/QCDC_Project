@@ -1,17 +1,8 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
 
-
-
-/// <summary>
-/// Simple FSM controller for the QCDC feature. Manages state instances,
-/// forwards Update calls and holds shared data like the spawned
-/// <see cref="QCDCInteractor"/> and camera reference.
-/// </summary>
-public class QCDCStateController : MonoBehaviour
+public class ArenaStateController : MonoBehaviour
 {
     IState currState;
     Dictionary<Type, IState> stateReg;
@@ -21,7 +12,6 @@ public class QCDCStateController : MonoBehaviour
 
     // Cached main camera and addressables handle for cleanup.
     Camera _mainCam;
-    AsyncOperationHandle<GameObject> handle;
     public Camera MainCamera
     {
         get
@@ -35,7 +25,7 @@ public class QCDCStateController : MonoBehaviour
     /// Reference to the runtime spawned interactor. States read and modify
     /// this to control the in-scene QCDC instance.
     /// </summary>
-    public QCDCInteractor QcdcInteractor
+    public ArenaSpawner ArenaSpawnerInstance
     {
         get; set;
     }
@@ -87,23 +77,5 @@ public class QCDCStateController : MonoBehaviour
         currState?.OnEnter();
     }
 
-    public void SetAssetLoadHandle(AsyncOperationHandle<GameObject> handle)
-    { 
-        this.handle = handle;
-    }
-
-    public void OnDisable()
-    {
-        // Clean up addressables and spawned object if loaded.
-        if (handle.Status == AsyncOperationStatus.None)
-            return;
-
-        if (handle.Status == AsyncOperationStatus.Succeeded && QcdcInteractor != null)
-        {
-            Addressables.Release(handle);
-            Destroy(QcdcInteractor);
-            QcdcInteractor = null;
-        }
-    }
 
 }

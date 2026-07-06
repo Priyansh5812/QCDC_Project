@@ -14,8 +14,7 @@ public struct Data_SpawnQCDC
     // Data required by the spawn state. Contains references to either a
     // direct prefab or an addressable asset, the AR interactor used for
     // raycasts, input readers and UI elements.
-    public QCDCInteractor qcdcPrefab;
-    public AssetReferenceGameObject qcdcAsset;
+    public ArenaSpawner arenaPrefab;
     public XRRayInteractor interactor;
     public XRInputButtonReader inputButtonReader;
     public CanvasGroup cgMain;
