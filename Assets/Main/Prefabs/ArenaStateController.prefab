@@ -1,0 +1,182 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &5403987495006364628
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8471019579420271925}
+  - component: {fileID: 2951044669697879796}
+  m_Layer: 0
+  m_Name: ArenaStateController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8471019579420271925
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5403987495006364628}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.07023826, y: 0.042749852, z: -0.04222256}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2951044669697879796
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5403987495006364628}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 189af9ff38d1b3e40acb205dbdcecb53, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spawnData:
+    arenaPrefab: {fileID: 5650544976895594678, guid: 87d5dbd2960055349a2ac1024f11e029, type: 3}
+    planeManager: {fileID: 0}
+    interactor: {fileID: 0}
+    inputButtonReader:
+      m_InputSourceMode: 2
+      m_InputActionPerformed:
+        m_Name: Spawn Object
+        m_Type: 1
+        m_ExpectedControlType: 
+        m_Id: 990fa9ab-99f8-45a6-9d39-887e06052f26
+        m_Processors: 
+        m_Interactions: 
+        m_SingletonActionBindings: []
+        m_Flags: 0
+      m_InputActionValue:
+        m_Name: Spawn Object Value
+        m_Type: 0
+        m_ExpectedControlType: Axis
+        m_Id: 4ae9bb9b-10c3-465e-91ce-f51080d4cda4
+        m_Processors: 
+        m_Interactions: 
+        m_SingletonActionBindings: []
+        m_Flags: 0
+      m_InputActionReferencePerformed: {fileID: -4583591036684423646, guid: c348712bda248c246b8c49b3db54643f, type: 3}
+      m_InputActionReferenceValue: {fileID: -4583591036684423646, guid: c348712bda248c246b8c49b3db54643f, type: 3}
+      m_ObjectReferenceObject: {fileID: 0}
+      m_ManualPerformed: 0
+      m_ManualValue: 0
+      m_ManualQueuePerformed: 0
+      m_ManualQueueWasPerformedThisFrame: 0
+      m_ManualQueueWasCompletedThisFrame: 0
+      m_ManualQueueValue: 0
+      m_ManualQueueTargetFrame: 0
+    cgMain: {fileID: 0}
+    btn_confirmPlacement: {fileID: 0}
+    prompt: {fileID: 0}
+    msg_ScanForArea: Scan area for surfaces
+    msg_ClicktoSpawn: Click on surface to place arena
+  posingData:
+    planeManager: {fileID: 0}
+    dragDelta:
+      m_InputSourceMode: 2
+      m_InputAction:
+        m_Name: 
+        m_Type: 0
+        m_ExpectedControlType: 
+        m_Id: 519cb107-8566-4ba7-9bac-376969c435bc
+        m_Processors: 
+        m_Interactions: 
+        m_SingletonActionBindings: []
+        m_Flags: 0
+      m_InputActionReference: {fileID: -3603844561257126198, guid: c348712bda248c246b8c49b3db54643f, type: 3}
+      m_ObjectReferenceObject: {fileID: 0}
+      m_ManualValue: {x: 0, y: 0}
+    pinchDelta:
+      m_InputSourceMode: 2
+      m_InputAction:
+        m_Name: 
+        m_Type: 0
+        m_ExpectedControlType: 
+        m_Id: 3b005979-0fdb-43f9-b7ff-02df9343c65f
+        m_Processors: 
+        m_Interactions: 
+        m_SingletonActionBindings: []
+        m_Flags: 0
+      m_InputActionReference: {fileID: -5112888916153672211, guid: c348712bda248c246b8c49b3db54643f, type: 3}
+      m_ObjectReferenceObject: {fileID: 0}
+      m_ManualValue: 0
+    twistDelta:
+      m_InputSourceMode: 2
+      m_InputAction:
+        m_Name: 
+        m_Type: 0
+        m_ExpectedControlType: 
+        m_Id: e02a1d3d-f1b6-4e47-a8d2-241cd41623a5
+        m_Processors: 
+        m_Interactions: 
+        m_SingletonActionBindings: []
+        m_Flags: 0
+      m_InputActionReference: {fileID: -8156239294363760665, guid: c348712bda248c246b8c49b3db54643f, type: 3}
+      m_ObjectReferenceObject: {fileID: 0}
+      m_ManualValue: 0
+    pinchDeltaModifier: 0.0001
+    dragSpeed: 0.25
+    pinchMultiplier: 0.5
+    twistDeltaModifier: 1
+    twistMultiplier: 1.25
+    lerpSpeed: 6
+    cgMain: {fileID: 0}
+    btn_finalizePosition: {fileID: 0}
+    lookRotationToggle: {fileID: 0}
+  interaction1Data:
+    pinchDelta:
+      m_InputSourceMode: 2
+      m_InputAction:
+        m_Name: 
+        m_Type: 0
+        m_ExpectedControlType: 
+        m_Id: 3b005979-0fdb-43f9-b7ff-02df9343c65f
+        m_Processors: 
+        m_Interactions: 
+        m_SingletonActionBindings: []
+        m_Flags: 0
+      m_InputActionReference: {fileID: -5112888916153672211, guid: c348712bda248c246b8c49b3db54643f, type: 3}
+      m_ObjectReferenceObject: {fileID: 0}
+      m_ManualValue: 0
+    twistDelta:
+      m_InputSourceMode: 2
+      m_InputAction:
+        m_Name: 
+        m_Type: 0
+        m_ExpectedControlType: 
+        m_Id: e02a1d3d-f1b6-4e47-a8d2-241cd41623a5
+        m_Processors: 
+        m_Interactions: 
+        m_SingletonActionBindings: []
+        m_Flags: 0
+      m_InputActionReference: {fileID: -8156239294363760665, guid: c348712bda248c246b8c49b3db54643f, type: 3}
+      m_ObjectReferenceObject: {fileID: 0}
+      m_ManualValue: 0
+    twistDeltaModifier: 1
+    twistMultiplier: 1.25
+    pinchDeltaModifier: 0.0001
+    pinchMultiplier: 0.5
+    lerpSpeed: 6
+    backBtn: {fileID: 0}
+    playSim: {fileID: 0}
+    leftTraversal: {fileID: 0}
+    rightTraversal: {fileID: 0}
+    partDescription: {fileID: 0}
+    tog_NormalView: {fileID: 0}
+    tog_ExplodedView: {fileID: 0}
+    cgMain: {fileID: 0}
+    cgInteraction_1: {fileID: 0}
+    cgInteraction_2: {fileID: 0}

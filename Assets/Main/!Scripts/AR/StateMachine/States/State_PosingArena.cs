@@ -1,11 +1,8 @@
 using DG.Tweening;
 using UnityEngine;
 
-public class State_PosingQCDC : IState
+public class State_PosingArena : IState
 {
-    // Handles user driven placement and posing of the spawned QCDC in AR.
-    // This state reads drag/pinch/twist input, computes target pose and
-    // lerps the object's transform towards the target.
     private ArenaStateController stateController;
     private Data_PosingQCDC data;
     Vector2 posDelta;
@@ -17,8 +14,7 @@ public class State_PosingQCDC : IState
     Transform qcdcTransform;
     float initialScaleMag;
     bool canComputePose;
-    bool canLookRotation;
-    public State_PosingQCDC(ArenaStateController controller, Data_PosingQCDC data)
+    public State_PosingArena(ArenaStateController controller, Data_PosingQCDC data)
     {
         stateController = controller;
         this.data = data;
@@ -26,8 +22,7 @@ public class State_PosingQCDC : IState
 
     public void OnEnter()
     {
-        Debug.Log("State_PosingQCDC: Enter");
-        SetTrackedPlanes(true);
+        Debug.Log("State_PosingArena: Enter");
         data.dragDelta.EnableDirectActionIfModeUsed();
         data.pinchDelta.EnableDirectActionIfModeUsed();
         data.twistDelta.EnableDirectActionIfModeUsed();
@@ -38,10 +33,10 @@ public class State_PosingQCDC : IState
         InitialScale = targetScale = qcdcTransform.localScale;
         initialScaleMag = InitialScale.magnitude;
         canComputePose = true;
-        canLookRotation = data.lookRotationToggle.isOn;
         //----------------
         data.btn_finalizePosition.onClick.AddListener(OnFinalizePosition);
         PrepareView();
+        SetTrackedPlanes(false);
     }
 
     async void PrepareView()
@@ -71,12 +66,7 @@ public class State_PosingQCDC : IState
         if (!canComputePose)
             return;
 
-        canLookRotation = data.lookRotationToggle.isOn;
-
-        if(canLookRotation)
-            ComputeLookRotation();
-        else
-            ComputeTwistRotation();
+        ComputeTwistRotation();
         ComputePosition();
         ComputeScale();
     }
@@ -150,7 +140,6 @@ public class State_PosingQCDC : IState
 
     public void OnExit()
     {
-        SetTrackedPlanes(false);
         data.dragDelta.DisableDirectActionIfModeUsed();
         data.pinchDelta.DisableDirectActionIfModeUsed();
         data.twistDelta.DisableDirectActionIfModeUsed();

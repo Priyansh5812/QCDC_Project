@@ -15,10 +15,13 @@ public struct Data_SpawnQCDC
     // direct prefab or an addressable asset, the AR interactor used for
     // raycasts, input readers and UI elements.
     public ArenaSpawner arenaPrefab;
+    public ARPlaneManager planeManager;
     public XRRayInteractor interactor;
     public XRInputButtonReader inputButtonReader;
     public CanvasGroup cgMain;
-    public GameObject spawningOverlay;
+    public Button btn_confirmPlacement;
+    public TextMeshProUGUI prompt;
+    public string msg_ScanForArea, msg_ClicktoSpawn;
 }
 
 [Serializable]
@@ -37,7 +40,6 @@ public struct Data_PosingQCDC
     public float lerpSpeed;
     public CanvasGroup cgMain;
     public Button btn_finalizePosition;
-    public Toggle lookRotationToggle;
 }
 
 [Serializable]

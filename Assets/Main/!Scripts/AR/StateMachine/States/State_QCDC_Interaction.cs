@@ -197,7 +197,7 @@ public class State_QCDC_Interaction : IState
         void OnAnimationSetCompletion()
         {
             SetViewFor(QCDCAnimationState.INTERACTION_1);
-            stateController.InitiateStateChange(typeof(State_PosingQCDC));
+            stateController.InitiateStateChange(typeof(State_PosingArena));
         }
     }
 

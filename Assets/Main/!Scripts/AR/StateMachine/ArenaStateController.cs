@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.XR.ARFoundation;
 
 public class ArenaStateController : MonoBehaviour
 {
@@ -40,7 +41,7 @@ public class ArenaStateController : MonoBehaviour
     private void Start()
     {
         // Start the workflow with the spawn state.
-        InitiateStateChange(typeof(State_SpawnQCDC));
+        InitiateStateChange(typeof(State_SpawnArena));
     }
 
 
@@ -59,8 +60,8 @@ public class ArenaStateController : MonoBehaviour
         stateReg ??= new Dictionary<Type, IState>();
 
         // Register concrete state instances with their required data.
-        stateReg.Add(typeof(State_SpawnQCDC), new State_SpawnQCDC(this, spawnData));
-        stateReg.Add(typeof(State_PosingQCDC), new State_PosingQCDC(this, posingData));
+        stateReg.Add(typeof(State_SpawnArena), new State_SpawnArena(this, spawnData));
+        stateReg.Add(typeof(State_PosingArena), new State_PosingArena(this, posingData));
         stateReg.Add(typeof(State_QCDC_Interaction), new State_QCDC_Interaction(this, interaction1Data));
     }
 
