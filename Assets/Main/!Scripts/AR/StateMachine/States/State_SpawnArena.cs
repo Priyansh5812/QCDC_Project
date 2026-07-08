@@ -1,6 +1,5 @@
 using DG.Tweening;
 using UnityEngine;
-using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.XR.ARFoundation;
 public class State_SpawnArena : IState
 {
@@ -8,6 +7,7 @@ public class State_SpawnArena : IState
     private Data_SpawnQCDC data;
     bool wasReadPerformed = false;
     bool isUnderAnimation = false;
+    bool isPromptedForClick = false;
     public State_SpawnArena(ArenaStateController controller, Data_SpawnQCDC data)
     {
         stateController = controller;
@@ -59,16 +59,17 @@ public class State_SpawnArena : IState
 
             stateController.ArenaSpawnerInstance = arena;
             TryAddARAnchor(arena);
-
+            if(!data.btn_confirmPlacement.gameObject.activeSelf)
+                data.btn_confirmPlacement.gameObject.SetActive(true);
         }
     }
 
     void PlaneScanPass()
     {
-        if(data.planeManager.trackables.count > 0 && !data.btn_confirmPlacement.gameObject.activeSelf)
+        if(data.planeManager.trackables.count > 0 && !isPromptedForClick)
         {   
             data.prompt?.SetText(data.msg_ClicktoSpawn);
-            data.btn_confirmPlacement.gameObject.SetActive(true);
+            isPromptedForClick = true;
         }
     }
 

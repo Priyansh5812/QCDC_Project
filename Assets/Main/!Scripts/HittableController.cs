@@ -1,36 +1,65 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 public class HittableController : MonoBehaviour , IDamagable
 {   
     [SerializeField] Collider collider;
-    [SerializeField] ParticleSystem particleSystem;
     [SerializeField] MeshRenderer mesh;
+    [SerializeField] Slider healthUI;
+    [SerializeField] Image fillImage;
     [SerializeField , Min(0f)] float health;
-
+    bool isUnderKillAnimation = false;
+    float currHealth;
+    HittableView view;
     private static readonly int ShakeSpeedID = Shader.PropertyToID("_ShakeSpeed");
     Coroutine hitRoutine = null;
 
     void Start()
     {
         mesh.sharedMaterial = new Material(mesh.sharedMaterial);
-        //ToggleHittableState(true);
     }
 
-    void Update()
+
+    public void InitializeHittable()
     {
-        if(Input.GetKeyDown(KeyCode.Space))
+        view ??= new(healthUI , fillImage);
+        currHealth = health;
+        view?.ToggleHealthUI(true);
+        view?.UpdateHealthUI(1);
+    }
+
+    public void SetHittableState(HittableState state)
+    {
+        switch(state)
         {
-            HitEnemy();
+            case HittableState.COLLIDABLE:
+                collider.enabled = true;
+                mesh.enabled = true;
+                break;
+            case HittableState.VISUAL_ONLY:
+                collider.enabled = false;
+                mesh.enabled = true;
+                break;
+            case HittableState.DISABLED:
+                collider.enabled = false;
+                mesh.enabled = false;
+                break;
+            default:
+                break;
         }
     }
 
-
     public void ReceiveDamage(float damageAmt)
-    {
-        health-= damageAmt;
-        health = Mathf.Max(0f , health);
+    {   
+        if(isUnderKillAnimation)
+            return;
 
-        if(health == 0f)
+        Debug.Log("Received Damage : "+this.gameObject.name);
+        currHealth-= damageAmt;
+        currHealth = Mathf.Max(0f , currHealth);
+        view?.UpdateHealthUI(currHealth / health);
+
+        if(currHealth == 0f)
         {
             KillEnemy();
         }
@@ -49,29 +78,48 @@ public class HittableController : MonoBehaviour , IDamagable
         }
 
         hitRoutine = StartCoroutine(HitRoutine());
-        
     }
 
-    void ToggleHittableState(bool isActive)
-    {
-        collider.enabled = isActive;
-        mesh.enabled = isActive;
-    }
 
     public void KillEnemy()
     {
-        
+        SetHittableState(HittableState.VISUAL_ONLY);
+        view?.ToggleHealthUI(false);
+        view?.InitiateKillAnimation(mesh , OnKillCompleted);
     }
+
+    void OnKillCompleted()
+    {   
+        Debug.Log("Kill Anim Initiated");
+        SetHittableState(HittableState.DISABLED);
+        var particleSystem = ParticlePooler.Get(ParticleEffectType.DESTROY_ORB, null , mesh.transform.position, Quaternion.identity) as ParticleController;
+
+        if(particleSystem != null)
+            particleSystem.gameObject.SetActive(true);
+        
+        mesh.transform.localPosition = Vector3.zero;
+        mesh.transform.localScale = Vector3.one;
+        EventManager.OnOrbKill.Invoke();
+    }
+
 
 
     IEnumerator HitRoutine()
     {
         Vector3 startScale = Vector3.one;
-        Vector3 randomScale = Vector3.one * Random.Range(0.85f, 1f);
+        Vector3 randomScale = Vector3.one * UnityEngine.Random.Range(0.85f, 1f);
         float hitDuration = 0.25f;
         float elapsed = 0f;
 
-        particleSystem.Play();
+        var particle = ParticlePooler.Get(ParticleEffectType.DAMAGE_ORB , null , this.transform.position , Quaternion.identity) as ParticleController;
+        if(particle == null)
+        {
+            Debug.Log("Particle was null");
+        }
+        else
+        {
+            particle.gameObject.SetActive(true);
+        }
         while (elapsed < hitDuration)
         {
             elapsed += Time.deltaTime;
@@ -91,10 +139,11 @@ public class HittableController : MonoBehaviour , IDamagable
     }
 
 
-    IEnumerator DeadRoutine()
-    {
-        yield return null;
-    }
+}
 
-
+public enum HittableState
+{
+    COLLIDABLE,
+    VISUAL_ONLY,
+    DISABLED
 }

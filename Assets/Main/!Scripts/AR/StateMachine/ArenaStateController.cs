@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
+using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 public class ArenaStateController : MonoBehaviour
 {
@@ -9,7 +10,8 @@ public class ArenaStateController : MonoBehaviour
     Dictionary<Type, IState> stateReg;
     [SerializeField] Data_SpawnQCDC spawnData;
     [SerializeField] Data_PosingQCDC posingData;
-    [SerializeField] Data_QCDC_Interaction interaction1Data;
+    [SerializeField] Data_Gameplay gameplayData;
+    [SerializeField] Data_GameEnd gameEndData;
 
     // Cached main camera and addressables handle for cleanup.
     Camera _mainCam;
@@ -31,6 +33,23 @@ public class ArenaStateController : MonoBehaviour
         get; set;
     }
     
+    void Awake()
+    {
+        VerifySceneReferences();
+    }
+
+    void VerifySceneReferences()
+    {   
+        if(spawnData.planeManager == null)
+            spawnData.planeManager = FindFirstObjectByType<ARPlaneManager>();
+
+        if(spawnData.interactor == null)
+            spawnData.interactor = FindFirstObjectByType<XRRayInteractor>();
+
+        if(posingData.planeManager == null)
+            posingData.planeManager = spawnData.planeManager;
+    }
+
     void OnEnable()
     {
         // Ensure registry is constructed and lock orientation for AR.
@@ -62,7 +81,8 @@ public class ArenaStateController : MonoBehaviour
         // Register concrete state instances with their required data.
         stateReg.Add(typeof(State_SpawnArena), new State_SpawnArena(this, spawnData));
         stateReg.Add(typeof(State_PosingArena), new State_PosingArena(this, posingData));
-        stateReg.Add(typeof(State_QCDC_Interaction), new State_QCDC_Interaction(this, interaction1Data));
+        stateReg.Add(typeof(State_Gameplay), new State_Gameplay(this, gameplayData));
+        stateReg.Add(typeof(State_GameEnd), new State_GameEnd(this, gameEndData));
     }
 
     /// <summary>

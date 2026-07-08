@@ -57,7 +57,7 @@ Material:
     - _QueueControl: 0
     - _QueueOffset: 0
     - _ShakeSpeed: 0
-    - _ShakeStrength: 0.0435
+    - _ShakeStrength: 0.0419
     - _Speed: 0.1
     m_Colors:
     - _BaseColor: {r: 0.21850124, g: 0.035294108, b: 0.8117647, a: 1}

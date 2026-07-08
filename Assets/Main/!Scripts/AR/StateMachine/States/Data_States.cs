@@ -1,7 +1,6 @@
 using System;
 using TMPro;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
 using UnityEngine.UI;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.Interaction.Toolkit.Inputs.Readers;
@@ -43,26 +42,17 @@ public struct Data_PosingQCDC
 }
 
 [Serializable]
-public struct Data_QCDC_Interaction
+public struct Data_Gameplay
 {
-    // Data used in the interaction state where the user can rotate,
-    // zoom and switch between normal/exploded views. Contains input
-    // readers and UI elements necessary to control the interaction.
-    public XRInputValueReader<float> pinchDelta;
-    public XRInputValueReader<float> twistDelta;
-    public float twistDeltaModifier;
-    public float twistMultiplier;
-    public float pinchDeltaModifier;
-    public float pinchMultiplier;
-    public float lerpSpeed;
-    public Button backBtn;
-    public Button playSim;
-    public Button leftTraversal , rightTraversal;
-    public TextMeshProUGUI partDescription;
-    public Toggle tog_NormalView;
-    public Toggle tog_ExplodedView;
+    public TextMeshProUGUI score;
+    public Button btn_fire;
     public CanvasGroup cgMain;
-    public CanvasGroup cgInteraction_1;
-    public CanvasGroup cgInteraction_2;
 }
 
+[Serializable]
+public struct Data_GameEnd
+{
+    public TextMeshProUGUI score;
+    public Button btn_playAgain;
+    public CanvasGroup cgMain;
+}

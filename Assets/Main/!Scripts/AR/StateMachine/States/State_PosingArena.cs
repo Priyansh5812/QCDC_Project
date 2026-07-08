@@ -125,7 +125,7 @@ public class State_PosingArena : IState
     {
         data.cgMain.interactable = data.cgMain.blocksRaycasts = false;
         await data.cgMain.DOFade(0f, 0.25f).SetEase(Ease.OutSine).AsyncWaitForCompletion();
-        stateController.InitiateStateChange(typeof(State_QCDC_Interaction));
+        stateController.InitiateStateChange(typeof(State_Gameplay));
     }
 
     void SetTrackedPlanes(bool value)

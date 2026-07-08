@@ -2,7 +2,6 @@
   "dependencies": {
     "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
     "com.unity.2d.spriteshape": "10.0.7",
-    "com.unity.addressables.android": "1.0.10",
     "com.unity.feature.development": "1.0.2",
     "com.unity.inputsystem": "1.15.0",
     "com.unity.learn.iet-framework": "4.0.4",
